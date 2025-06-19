@@ -236,6 +236,30 @@
             transform: translateY(-1px);
         }
         
+        .btn-quick {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-quick:hover {
+            background: var(--border);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .quick-login-buttons {
+            display: flex;
+            flex-direction: column;
+        }
+        
         /* 取引リスト */
         .transactions-card {
             background: var(--bg-card);
@@ -449,37 +473,85 @@
             <div id="errorMessage" class="error-message" style="display: none;"></div>
             
             <form id="setupForm" class="form-grid">
-                <div class="form-group">
-                    <label for="apiKey">API Key</label>
-                    <input type="text" id="apiKey" placeholder="AIzaSy..." required>
+                <div id="quickSetup" style="display: block;">
+                    <div class="quick-login-buttons">
+                        <button type="button" class="btn btn-quick" onclick="quickLogin('demo')">
+                            🏠 デモ版を試す
+                        </button>
+                        <button type="button" class="btn btn-quick" onclick="quickLogin('family')">
+                            👨‍👩‍👧‍👦 家族で使う
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 1.5rem 0; text-align: center;">
+                        <span style="color: var(--text-muted);">または</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accessCode">アクセスコード</label>
+                        <input type="text" id="accessCode" placeholder="例: ABC123" style="text-transform: uppercase;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                            家族から共有されたコードを入力
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userName">あなたの名前</label>
+                        <select id="userName">
+                            <option value="お父さん">お父さん</option>
+                            <option value="お母さん">お母さん</option>
+                            <option value="長男">長男</option>
+                            <option value="長女">長女</option>
+                            <option value="次男">次男</option>
+                            <option value="次女">次女</option>
+                            <option value="おじいちゃん">おじいちゃん</option>
+                            <option value="おばあちゃん">おばあちゃん</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">接続する</button>
+                    
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <a href="#" onclick="showAdvancedSetup()" style="color: var(--text-muted); font-size: 0.875rem;">
+                            詳細設定 →
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="authDomain">Auth Domain</label>
-                    <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com" required>
+                <div id="advancedSetup" style="display: none;">
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <input type="text" id="apiKey" placeholder="AIzaSy...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="authDomain">Auth Domain</label>
+                        <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="databaseURL">Database URL</label>
+                        <input type="text" id="databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="projectId">Project ID</label>
+                        <input type="text" id="projectId" placeholder="your-project">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="roomId">ルームID</label>
+                        <input type="text" id="roomId" placeholder="例: tanaka-2024">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">接続する</button>
+                    
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <a href="#" onclick="showQuickSetup()" style="color: var(--text-muted); font-size: 0.875rem;">
+                            ← 簡単設定に戻る
+                        </a>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="databaseURL">Database URL</label>
-                    <input type="text" id="databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="projectId">Project ID</label>
-                    <input type="text" id="projectId" placeholder="your-project" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="roomId">ルームID（家族で共有）</label>
-                    <input type="text" id="roomId" placeholder="例: tanaka-2024" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="userName">あなたの名前</label>
-                    <input type="text" id="userName" placeholder="例: お父さん" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">接続する</button>
                 
                 <div style="margin-top: 1rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
@@ -612,43 +684,125 @@
             localStorage.setItem('auto_connect', isChecked);
         }
         
+        // 事前設定
+        const presetConfigs = {
+            demo: {
+                apiKey: "AIzaSyCHJWnB-qs_QnGEiH4J9H1k2v5Y8DEMO",
+                authDomain: "kakeibo-demo.firebaseapp.com",
+                databaseURL: "https://kakeibo-demo-default-rtdb.firebaseio.com",
+                projectId: "kakeibo-demo",
+                roomId: "demo-room"
+            },
+            // アクセスコードと設定のマッピング
+            codes: {
+                'ABC123': {
+                    apiKey: "YOUR_API_KEY",
+                    authDomain: "YOUR_PROJECT.firebaseapp.com",
+                    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+                    projectId: "YOUR_PROJECT",
+                    roomId: "family-2024"
+                }
+            }
+        };
+        
+        // クイックログイン
+        function quickLogin(type) {
+            if (type === 'demo') {
+                const config = presetConfigs.demo;
+                const userName = document.getElementById('userName').value;
+                
+                localStorage.setItem('firebase_apikey', config.apiKey);
+                localStorage.setItem('firebase_authdomain', config.authDomain);
+                localStorage.setItem('firebase_databaseurl', config.databaseURL);
+                localStorage.setItem('firebase_projectid', config.projectId);
+                localStorage.setItem('room_id', config.roomId);
+                localStorage.setItem('user_name', userName);
+                
+                connectToFirebase(config, config.roomId, userName);
+            } else if (type === 'family') {
+                alert('家族用のアクセスコードを入力してください');
+                document.getElementById('accessCode').focus();
+            }
+        }
+        
+        // 表示切替
+        function showAdvancedSetup() {
+            document.getElementById('quickSetup').style.display = 'none';
+            document.getElementById('advancedSetup').style.display = 'block';
+            return false;
+        }
+        
+        function showQuickSetup() {
+            document.getElementById('quickSetup').style.display = 'block';
+            document.getElementById('advancedSetup').style.display = 'none';
+            return false;
+        }
+        
         // セットアップフォーム
         document.getElementById('setupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const authDomain = document.getElementById('authDomain').value.trim();
-            const databaseURL = document.getElementById('databaseURL').value.trim();
-            const projectId = document.getElementById('projectId').value.trim();
-            const roomId = document.getElementById('roomId').value.trim();
-            const userName = document.getElementById('userName').value.trim();
+            const isQuickSetup = document.getElementById('quickSetup').style.display !== 'none';
             
-            try {
-                // Firebase設定を作成
-                const firebaseConfig = {
-                    apiKey: apiKey,
-                    authDomain: authDomain,
-                    databaseURL: databaseURL,
-                    projectId: projectId,
-                    storageBucket: projectId + ".appspot.com",
-                    messagingSenderId: "123456789",  // 省略可
-                    appId: "1:123456789:web:abc123"  // 省略可
-                };
+            if (isQuickSetup) {
+                // 簡単設定モード
+                const accessCode = document.getElementById('accessCode').value.trim().toUpperCase();
+                const userName = document.getElementById('userName').value;
                 
-                // 設定を保存
-                localStorage.setItem('firebase_config', JSON.stringify(firebaseConfig));
-                localStorage.setItem('firebase_apikey', apiKey);
-                localStorage.setItem('firebase_authdomain', authDomain);
-                localStorage.setItem('firebase_databaseurl', databaseURL);
-                localStorage.setItem('firebase_projectid', projectId);
-                localStorage.setItem('room_id', roomId);
-                localStorage.setItem('user_name', userName);
+                if (accessCode && presetConfigs.codes[accessCode]) {
+                    const config = presetConfigs.codes[accessCode];
+                    
+                    localStorage.setItem('firebase_apikey', config.apiKey);
+                    localStorage.setItem('firebase_authdomain', config.authDomain);
+                    localStorage.setItem('firebase_databaseurl', config.databaseURL);
+                    localStorage.setItem('firebase_projectid', config.projectId);
+                    localStorage.setItem('room_id', config.roomId);
+                    localStorage.setItem('user_name', userName);
+                    localStorage.setItem('access_code', accessCode);
+                    
+                    await connectToFirebase(config, config.roomId, userName);
+                } else if (!accessCode) {
+                    showError('アクセスコードを入力してください');
+                } else {
+                    showError('無効なアクセスコードです');
+                }
+            } else {
+                // 詳細設定モード
+                const apiKey = document.getElementById('apiKey').value.trim();
+                const authDomain = document.getElementById('authDomain').value.trim();
+                const databaseURL = document.getElementById('databaseURL').value.trim();
+                const projectId = document.getElementById('projectId').value.trim();
+                const roomId = document.getElementById('roomId').value.trim();
+                const userName = document.getElementById('userName').value.trim();
                 
-                // 接続
-                await connectToFirebase(firebaseConfig, roomId, userName);
-                
-            } catch (error) {
-                showError('設定エラー: ' + error.message);
+                if (apiKey && authDomain && databaseURL && projectId && roomId) {
+                    try {
+                        const firebaseConfig = {
+                            apiKey: apiKey,
+                            authDomain: authDomain,
+                            databaseURL: databaseURL,
+                            projectId: projectId,
+                            storageBucket: projectId + ".appspot.com",
+                            messagingSenderId: "123456789",
+                            appId: "1:123456789:web:abc123"
+                        };
+                        
+                        localStorage.setItem('firebase_config', JSON.stringify(firebaseConfig));
+                        localStorage.setItem('firebase_apikey', apiKey);
+                        localStorage.setItem('firebase_authdomain', authDomain);
+                        localStorage.setItem('firebase_databaseurl', databaseURL);
+                        localStorage.setItem('firebase_projectid', projectId);
+                        localStorage.setItem('room_id', roomId);
+                        localStorage.setItem('user_name', userName);
+                        
+                        await connectToFirebase(firebaseConfig, roomId, userName);
+                        
+                    } catch (error) {
+                        showError('設定エラー: ' + error.message);
+                    }
+                } else {
+                    showError('すべてのフィールドを入力してください');
+                }
             }
         });
         
@@ -877,24 +1031,39 @@
             const savedAuthDomain = localStorage.getItem('firebase_authdomain');
             const savedDatabaseURL = localStorage.getItem('firebase_databaseurl');
             const savedProjectId = localStorage.getItem('firebase_projectid');
+            const savedAccessCode = localStorage.getItem('access_code');
             
             if (savedApiKey && savedAuthDomain && savedDatabaseURL && savedProjectId && savedRoomId && savedUserName) {
-                // フォームに値を設定
+                // 詳細設定モードの値を設定
                 document.getElementById('apiKey').value = savedApiKey;
                 document.getElementById('authDomain').value = savedAuthDomain;
                 document.getElementById('databaseURL').value = savedDatabaseURL;
                 document.getElementById('projectId').value = savedProjectId;
                 document.getElementById('roomId').value = savedRoomId;
-                document.getElementById('userName').value = savedUserName;
                 
                 // 自動接続を有効にする
                 const autoConnect = localStorage.getItem('auto_connect');
                 if (autoConnect === 'true') {
                     // 自動的に接続
+                    const config = {
+                        apiKey: savedApiKey,
+                        authDomain: savedAuthDomain,
+                        databaseURL: savedDatabaseURL,
+                        projectId: savedProjectId
+                    };
                     setTimeout(() => {
-                        document.getElementById('setupForm').dispatchEvent(new Event('submit'));
+                        connectToFirebase(config, savedRoomId, savedUserName);
                     }, 500);
                 }
+            } else if (savedAccessCode && savedUserName) {
+                // アクセスコードモードの値を設定
+                document.getElementById('accessCode').value = savedAccessCode;
+                document.getElementById('userName').value = savedUserName;
+            }
+            
+            // 名前の復元（両モード共通）
+            if (savedUserName && document.getElementById('userName').tagName === 'SELECT') {
+                document.getElementById('userName').value = savedUserName;
             }
         });
     </script>
