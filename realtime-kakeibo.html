@@ -712,18 +712,26 @@
         // 事前設定
         const presetConfigs = {
             demo: {
-                apiKey: "AIzaSyCHJWnB-qs_QnGEiH4J9H1k2v5Y8DEMO",
+                apiKey: "AIzaSyDemoKeyForTesting123456789",
                 authDomain: "kakeibo-demo.firebaseapp.com",
                 databaseURL: "https://kakeibo-demo-default-rtdb.firebaseio.com",
-                projectId: "ikd5-60bd3",
-                roomId: "ikd"
+                projectId: "kakeibo-demo",
+                roomId: "demo-room"
             },
             // アクセスコードと設定のマッピング
             codes: {
-                'ikeda316': {
-                    apiKey: "AIzaSyB_mfzurNt43HCwyTuyxP4KePa9aTAYEaA",
-                    authDomain: "ikd5-60bd3.firebaseapp.com",
-                    databaseURL: "https://ikd5-60bd3-default-rtdb.asia-southeast1.firebasedatabase.app",
+                'IKEDA316': {
+                    apiKey: "AIzaSyCHJWnB-qs_QnGEiH4J9H1k2v5Y8DEMO",
+                    authDomain: "kakeibo-demo.firebaseapp.com",
+                    databaseURL: "https://kakeibo-demo-default-rtdb.firebaseio.com",
+                    projectId: "ikd5",
+                    roomId: "ikeda"
+                },
+                // テスト用（実際のFirebase設定を入れるまでの仮設定）
+                'TEST': {
+                    apiKey: "AIzaSyDemoKeyForTesting123456789",
+                    authDomain: "kakeibo-demo.firebaseapp.com",
+                    databaseURL: "https://kakeibo-demo-default-rtdb.firebaseio.com",
                     projectId: "ikd5-60bd3",
                     roomId: "ikd"
                 }
@@ -774,8 +782,15 @@
                 const accessCode = document.getElementById('accessCode').value.trim().toUpperCase();
                 const userName = document.getElementById('userName').value;
                 
+                console.log('入力されたアクセスコード:', accessCode);
+                console.log('利用可能なコード:', Object.keys(presetConfigs.codes));
+                console.log('コード一致確認:', presetConfigs.codes.hasOwnProperty(accessCode));
+                
                 if (accessCode && presetConfigs.codes[accessCode]) {
                     const config = presetConfigs.codes[accessCode];
+                    
+                    // Firebase設定をコンソールに表示（デバッグ用）
+                    console.log('使用する設定:', config);
                     
                     localStorage.setItem('firebase_apikey', config.apiKey);
                     localStorage.setItem('firebase_authdomain', config.authDomain);
@@ -789,7 +804,7 @@
                 } else if (!accessCode) {
                     showError('アクセスコードを入力してください');
                 } else {
-                    showError('無効なアクセスコードです');
+                    showError('無効なアクセスコードです: ' + accessCode);
                 }
             } else {
                 // 詳細設定モード
