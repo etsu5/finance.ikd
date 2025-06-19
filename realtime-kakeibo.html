@@ -260,6 +260,24 @@
             flex-direction: column;
         }
         
+        .btn-logout {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--danger);
+        }
+        
         /* 取引リスト */
         .transactions-card {
             background: var(--bg-card);
@@ -576,6 +594,13 @@
                 <div class="user-info">
                     <div class="user-dot"></div>
                     <span id="currentUser">-</span>
+                    <button class="btn-logout" onclick="logout()" title="ログアウト">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="realtime-indicator">
@@ -843,6 +868,15 @@
                 document.getElementById('mainApp').style.display = 'block';
                 document.getElementById('currentUser').textContent = userName;
                 
+                // ログイン成功のフィードバック
+                const userDot = document.querySelector('.user-dot');
+                if (userDot) {
+                    userDot.style.animation = 'pulse 0.5s ease-out';
+                    setTimeout(() => {
+                        userDot.style.animation = '';
+                    }, 500);
+                }
+                
                 // 初期化
                 document.getElementById('date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('type').addEventListener('change', updateCategories);
@@ -977,6 +1011,39 @@
             return `${month}/${day}`;
         }
         
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                // Firebaseからの切断
+                if (roomRef) {
+                    roomRef.off();
+                }
+                if (database) {
+                    database.ref('.info/connected').off();
+                }
+                
+                // 自動ログインを無効化
+                localStorage.setItem('auto_connect', 'false');
+                
+                // UIリセット
+                document.getElementById('setupOverlay').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('connectionBar').classList.remove('connected');
+                document.getElementById('connectionBar').classList.remove('connecting');
+                
+                // フォームリセット
+                document.getElementById('setupForm').reset();
+                document.getElementById('errorMessage').style.display = 'none';
+                
+                // 変数リセット
+                firebaseApp = null;
+                database = null;
+                roomRef = null;
+                currentUser = null;
+                transactions = {};
+            }
+        }
+        
         // CSVエクスポート機能
         function exportToCSV() {
             const transactionArray = Object.entries(transactions)
@@ -1064,6 +1131,12 @@
             // 名前の復元（両モード共通）
             if (savedUserName && document.getElementById('userName').tagName === 'SELECT') {
                 document.getElementById('userName').value = savedUserName;
+            }
+            
+            // 自動接続チェックボックスの復元
+            const autoConnectCheckbox = document.getElementById('autoConnect');
+            if (autoConnectCheckbox) {
+                autoConnectCheckbox.checked = localStorage.getItem('auto_connect') === 'true';
             }
         });
     </script>
